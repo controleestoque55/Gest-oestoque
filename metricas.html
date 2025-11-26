@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Métricas Avançadas | ERP Enterprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    <div id="loader-screen">
+        <div class="loader-content">
+            <div class="loader-title">
+                <i class="fa-solid fa-chart-line" style="color: #2563eb;"></i> 
+                INTELIGÊNCIA DE DADOS
+            </div>
+            <div class="loader-divider"></div>
+            <div class="loader"></div>
+            <div class="loader-text" id="loader-text">Calculando métricas...</div>
+        </div>
+    </div>
+
+    <div id="overlay" class="modal-overlay"></div>
+    
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-text"><i class="fa-solid fa-layer-group" style="color: #3b82f6;"></i> ERP Graficos</div>
+            <button onclick="window.location.href='index.html'" class="btn-toggle-menu" style="color:white; margin-left: auto;"><i class="fa-solid fa-chevron-left"></i></button>
+        </div>
+        <ul class="menu-list">
+            <a href="index.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-boxes-stacked icon"></i> Visão Geral</li></a>
+            <a href="relatorios.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-chart-pie icon"></i> Relatório Vendas</li></a>
+            <a href="compras.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-truck-fast icon"></i> Gestão Compras</li></a>
+            <a href="metricas.html" class="link-menu"><li class="menu-item active"><i class="fa-solid fa-chart-line icon"></i> Métricas & KPIs</li></a>
+        </ul>
+        <div style="padding:20px; color:#64748b; font-size:0.8rem; margin-top:auto;">
+             <i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> Sistema Operacional
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <button id="menu-trigger" class="btn-toggle-menu" onclick="document.querySelector('.sidebar').classList.add('active'); document.querySelector('.overlay').classList.add('visible');"><i class="fa-solid fa-bars icon-dark"></i></button>
+                <h2 style="margin:0; font-size:1.2rem; color:#334155;">Business Intelligence (BI)</h2>
+            </div>
+        </header>
+
+        <main class="container">
+            
+            <div class="card">
+                <div class="filter-header" style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                    <h3><i class="fa-regular fa-calendar icon-blue" style="margin-right:10px"></i> Período de Análise</h3>
+                    <span style="font-size:0.8rem; color:#64748b; background:#eff6ff; padding:5px 12px; border-radius:15px; border:1px solid #dbeafe;">
+                        <i class="fa-solid fa-filter"></i> Selecione um mês para filtrar os indicadores abaixo.
+                    </span>
+                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 25px;">
+                
+                <div class="card" style="display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3><i class="fa-solid fa-chart-column icon-green" style="margin-right:8px"></i> Fluxo de Caixa <span class="periodo-texto" style="font-weight:400; color:#64748b; font-size:0.9rem; margin-left:5px;"></span></h3>
+                    </div>
+                    
+                    <div class="chart-container" style="height:320px; position:relative; width:100%;">
+                        <canvas id="chartFluxo"></canvas>
+                    </div>
+
+                    <div style="margin-top:20px; padding-top:15px; border-top:1px solid #f1f5f9;">
+                        <h4 style="font-size:0.9rem; color:#334155; margin-bottom:5px;">Análise Financeira:</h4>
+                        <p style="font-size:0.85rem; color:#64748b; line-height:1.5;">
+                            Comparativo direto entre o capital investido em <strong>Compras</strong> e o retorno obtido com <strong>Vendas</strong>. 
+                            <br>Na visão anual, reflete a saúde financeira global. Ao selecionar um mês, indica a performance pontual do período.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card" style="display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3><i class="fa-solid fa-chart-pie icon-blue" style="margin-right:8px"></i> Fluxo de Categoria</h3>
+                        <span class="badge bg-info" style="font-size:0.7rem;"><i class="fa-solid fa-hand-pointer"></i> Interativo</span>
+                    </div>
+
+                    <div class="chart-container" style="height:320px; position:relative; width:100%;">
+                        <canvas id="chartCategoria"></canvas>
+                    </div>
+
+                    <div style="margin-top:20px; padding:15px; background:#eff6ff; border-radius:8px; border:1px solid #dbeafe;">
+                        <h4 style="font-size:0.9rem; color:#1e40af; margin-top:0; margin-bottom:5px;">
+                            <i class="fa-solid fa-lightbulb"></i> Exploração de Dados
+                        </h4>
+                        <p style="font-size:0.85rem; color:#1e3a8a; line-height:1.5; margin-bottom:0;">
+                            <strong>Clique em uma fatia do gráfico</strong> para acessar o relatório detalhado da categoria selecionada (Ex: Smartphones, Games).
+                            <br>Visualize o Top Produto e o ranking de vendas específico.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

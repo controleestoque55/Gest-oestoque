@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Compras | ERP Enterprise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div id="toast-container"></div>
+
+    <div id="loader-screen">
+        <div class="loader-content">
+            <div class="loader-title">
+                <i class="fa-solid fa-layer-group" style="color: #2563eb;"></i> 
+                GESTÃO DE COMPRAS
+            </div>
+            <div class="loader-divider"></div>
+            <div class="loader"></div>
+            <div class="loader-text" id="loader-text">Carregando histórico...</div>
+        </div>
+    </div>
+
+    <div id="overlay" class="modal-overlay"></div>
+    
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-text"><i class="fa-solid fa-layer-group" style="color: #3b82f6;"></i> ERP Compras</div>
+            <button onclick="document.querySelector('.sidebar').classList.remove('active'); document.querySelector('.overlay').classList.remove('visible');" class="btn-toggle-menu" style="color:white; margin-left: auto;"><i class="fa-solid fa-chevron-left"></i></button>
+        </div>
+        <ul class="menu-list">
+            <a href="index.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-boxes-stacked icon"></i> Visão Geral</li></a>
+            <a href="relatorios.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-chart-pie icon"></i> Relatório Vendas</li></a>
+            <a href="compras.html" class="link-menu"><li class="menu-item active"><i class="fa-solid fa-truck-fast icon"></i> Gestão Compras</li></a>
+            <a href="metricas.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-chart-line icon"></i> Métricas & KPIs</li></a>
+        </ul>
+        <div style="padding:20px; color:#64748b; font-size:0.8rem; margin-top:auto;">
+             <i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> Sistema Operacional
+        </div>
+    </nav>
+    
+    <div class="main-content">
+        <header class="top-bar">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <button id="menu-trigger" class="btn-toggle-menu" onclick="document.querySelector('.sidebar').classList.add('active'); document.querySelector('.overlay').classList.add('visible');"><i class="fa-solid fa-bars icon-dark"></i></button>
+                <h2>Fluxo de Compras (Entradas)</h2>
+            </div>
+            <a href="index.html?action=nova_entrada" class="btn-primary" style="text-decoration:none;">
+                <i class="fa-solid fa-plus"></i> Nova Entrada
+            </a>
+        </header>
+
+        <main class="container">
+            
+            <div class="card" style="background:#eff6ff; border-left:4px solid #3b82f6;">
+                <h4 style="margin-top:0; color:#1e40af;"><i class="fa-solid fa-circle-info"></i> Gestão de Investimento</h4>
+                <p style="font-size:0.9rem; color:#334155; margin-bottom:0;">
+                    Visualização completa das aquisições. O sistema atualiza o status de entrega automaticamente com base na data da operação.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-truck-ramp-box icon-blue" style="margin-right:10px"></i> Histórico de Aquisições</h3>
+                <div class="table-responsive">
+                    <table style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Motivo</th>
+                                <th>Qtd</th>
+                                <th>Investimento (R$)</th>
+                                <th>Status Atual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-compras">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

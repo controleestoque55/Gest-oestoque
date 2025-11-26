@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visão Geral | ERP Enterprise</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loader-screen">
+        <div class="loader-content">
+            <div class="loader-title">
+                <i class="fa-solid fa-layer-group" style="color: #2563eb;"></i> 
+                GESTÃO DE ESTOQUE
+            </div>
+            <div class="loader-divider"></div>
+            <div class="loader"></div>
+            <div class="loader-text" id="loader-text">Conectando ao banco de dados...</div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay"></div>
+
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-text">
+                <i class="fa-solid fa-layer-group" style="color: #3b82f6;"></i> Sistema Geral
+            </div>
+            <button onclick="closeMenu()" class="btn-toggle-menu" style="color:white; margin-left: auto; margin-right: -10px; margin-top: 8px;">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+        
+        <ul class="menu-list">
+            <a href="index.html" class="link-menu"><li class="menu-item active"><i class="fa-solid fa-boxes-stacked icon"></i> Visão Geral</li></a>
+            <a href="relatorios.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-chart-pie icon"></i> Relatório Vendas</li></a>
+            <a href="compras.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-truck-fast icon"></i> Gestão Compras</li></a>
+            <a href="metricas.html" class="link-menu"><li class="menu-item"><i class="fa-solid fa-chart-line icon"></i> Métricas & KPIs</li></a>
+        </ul>
+        
+        <div style="padding:20px; color:#64748b; font-size:0.8rem; margin-top:auto;">
+             <i class="fa-solid fa-circle-check" style="color:#22c55e;"></i> Sistema Operacional
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <header class="top-bar">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <button id="menu-trigger" class="btn-toggle-menu" onclick="openMenu()">
+                    <i class="fa-solid fa-bars icon-dark"></i>
+                </button>
+                <h2 style="margin:0; font-size:1.2rem; color:#334155;">Painel de Controle</h2>
+            </div>
+            <button class="btn-primary" onclick="openNewProductModal()">
+                <i class="fa-solid fa-plus"></i> Novo Produto
+            </button>
+        </header>
+
+        <main class="container">
+            
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-label"><i class="fa-solid fa-box icon-blue"></i> Estoque (Qtd)</span>
+                    <span class="kpi-value" id="kpi-total">...</span>
+                </div>
+                <div class="kpi-card" style="border-left-color: #22c55e;">
+                    <span class="kpi-label"><i class="fa-solid fa-sack-dollar icon-green"></i> Valor em Estoque</span>
+                    <span class="kpi-value" id="kpi-valor">...</span>
+                </div>
+                <div class="kpi-card" style="border-left-color: #ef4444; transition: background-color 0.3s;">
+                    <span class="kpi-label"><i class="fa-solid fa-triangle-exclamation icon-red"></i> Situação Crítica</span>
+                    <span class="kpi-value" id="kpi-critico" style="color:#ef4444;">...</span>
+                    <small style="font-size:0.75rem; color:#64748b; margin-top:5px;">Produtos abaixo do mínimo</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="filter-header" style="margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+                    <h3><i class="fa-regular fa-calendar icon-blue" style="margin-right:10px"></i> Linha do Tempo</h3>
+                    <span style="font-size:0.8rem; color:#64748b; background:#eff6ff; padding:5px 12px; border-radius:15px; border:1px solid #dbeafe;">
+                        <i class="fa-solid fa-clock-rotate-left"></i> Navegue pelos meses para ver o histórico.
+                    </span>
+                </div>
+                <div id="calendar-grid" class="calendar-grid" style="margin-bottom:10px;"></div>
+            </div>
+
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                    <div>
+                        <h3 style="margin-bottom:5px;"><i class="fa-solid fa-list-check icon-dark" style="margin-right:10px"></i> Inventário <span class="periodo-texto" style="font-weight:400; color:#64748b;">(Atual)</span></h3>
+                        <p style="font-size:0.85rem; color:#64748b; margin:0;">
+                            Gerencie quantidades, preços e faça ajustes manuais.
+                        </p>
+                    </div>
+                    <div style="position:relative;">
+                        <i class="fa-solid fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#94a3b8;"></i>
+                        <input type="text" id="search-input" placeholder="Buscar produto..." class="form-control" style="width:280px; margin-bottom:0; padding-left:35px;">
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="tabela-estoque">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Produto / Categoria</th>
+                                <th>Fornecedor</th>
+                                <th>Custo Unit.</th>
+                                <th>Preço Venda</th>
+                                <th style="text-align:center;">Estoque (Mês)</th>
+                                <th>Total ($)</th>
+                                <th>Status (Mês)</th>
+                                <th>Ações Rápidas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-estoque"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-transacao" class="modal-overlay">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 id="modal-title">Nova Movimentação</h3>
+                <button onclick="closeModal()" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Produto Selecionado</label>
+                    <input type="text" id="modal-prod-nome" class="form-control" disabled style="background:#f1f5f9; font-weight:600;">
+                </div>
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="form-qtd" class="form-control" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Motivo da Operação</label>
+                    <select id="form-motivo" class="form-control">
+                        <option value="Venda Balcão">Venda Balcão (Loja Física)</option>
+                        <option value="Venda Online">Venda E-commerce</option>
+                        <option value="Venda Corporativa">Venda Corporativa</option>
+                        <option value="Compra Regular">Reposição de Estoque</option>
+                        <option value="Devolução">Devolução / Troca</option>
+                        <option value="Ajuste Inventário">Ajuste de Inventário</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeModal()" style="width:auto; padding:0 15px; background:transparent; border:1px solid #cbd5e1; color:#64748b;">Cancelar</button>
+                <button id="btn-confirm-transacao" class="btn-primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-novo-produto" class="modal-overlay">
+        <div class="modal-window" style="max-width:600px;">
+            <div class="modal-header"><h3><i class="fa-solid fa-box"></i> Cadastrar Produto</h3><button onclick="closeNewProductModal()">&times;</button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>Nome do Produto</label><input type="text" id="new-nome" class="form-control" placeholder="Ex: iPhone 15 Pro"></div>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div class="form-group"><label>Categoria</label><input type="text" id="new-cat" class="form-control" placeholder="Ex: Smartphones"></div>
+                    <div class="form-group"><label>Fornecedor</label><input type="text" id="new-forn" class="form-control" placeholder="Ex: Apple Dist."></div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:15px;">
+                    <div class="form-group"><label>Custo (R$)</label><input type="number" id="new-custo" class="form-control"></div>
+                    <div class="form-group"><label>Venda (R$)</label><input type="number" id="new-venda" class="form-control"></div>
+                    <div class="form-group"><label>Estoque Inicial</label><input type="number" id="new-estoque" class="form-control"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="salvarNovoProduto()" style="width:100%; justify-content:center;">Salvar no Banco de Dados</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
+  
