@@ -1,7 +1,6 @@
 import sys
 import os
 
-# --- VERIFICAÇÃO DE IMPORTAÇÃO (BANCO) ---
 try:
     from backend_db import ControleEstoqueDB
 except ImportError:
@@ -20,9 +19,9 @@ def popular_banco():
 
     print("--- Iniciando verificação e cadastro de produtos ---")
 
-    # Lista de produtos (Nome, Categoria, Fornecedor, Custo, Venda, Min, Atual)
+
     produtos_ficticios = [
-        # Apple
+        
         ("iPhone 15 Pro 128GB", "Smartphones", "Apple Dist.", 5200.00, 7800.00, 10, 25),
         ("iPhone 14 128GB", "Smartphones", "Apple Dist.", 3800.00, 5200.00, 15, 8),
         ("MacBook Air M2", "Notebooks", "Apple Dist.", 6500.00, 8900.00, 5, 3),
@@ -58,7 +57,7 @@ def popular_banco():
         ("Nintendo Switch OLED", "Games", "Nintendo", 1900.00, 2600.00, 10, 6)
     ]
 
-    # CORREÇÃO: Cria um conjunto com os nomes que JÁ existem no banco para evitar duplicatas
+
     produtos_existentes = {p['nome'] for p in db.listar_produtos()}
 
     contador_novos = 0

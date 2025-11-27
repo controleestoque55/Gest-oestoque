@@ -4,10 +4,9 @@ import logging
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
-# --- IMPORTAÇÕES LOCAIS ---
 try:
     from backend_db import ControleEstoqueDB
-    # Importamos os scripts como módulos para rodar as funções internamente
+    
     import seed_data 
     import popular_historico
 except ImportError as e:
@@ -16,19 +15,18 @@ except ImportError as e:
 
 logging.basicConfig(level=logging.INFO)
 
-# --- CONFIGURAÇÃO PARA SERVIR ARQUIVOS ESTÁTICOS (HTML/JS/CSS) ---
-# Isso faz o Flask procurar os arquivos na pasta atual (root) em vez de exigir uma pasta 'templates'
+
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app) 
 
-# Inicializa o Banco
+
 try:
     db = ControleEstoqueDB()
 except Exception as e:
     logging.error(f"Erro ao conectar no banco: {e}")
     sys.exit(1)
 
-# --- FUNÇÕES DE SETUP AUTOMÁTICO ---
+
 def verificar_e_popular_banco():
     """Verifica se o banco está vazio e roda os scripts de população automaticamente."""
     qtd = db.contar_produtos()
@@ -38,7 +36,7 @@ def verificar_e_popular_banco():
         print(" Iniciando população automática (Seed + Histórico)...")
         print("!"*50 + "\n")
         
-        # Chama as funções diretamente dos outros arquivos
+
         seed_data.popular_banco()
         popular_historico.gerar_historico()
         
@@ -46,7 +44,7 @@ def verificar_e_popular_banco():
     else:
         print(f"ℹ️ Banco de dados já contem {qtd} produtos. Iniciando servidor...")
 
-# --- FUNÇÕES AUXILIARES ---
+
 def safe_float(value):
     try:
         if isinstance(value, str): value = value.replace(',', '.')
@@ -58,18 +56,18 @@ def safe_int(value):
         return int(float(value)) if value else 0
     except: return 0
 
-# --- ROTA PARA SERVIR O SITE (FRONTEND) ---
+
 @app.route('/')
 def index():
-    # Serve o index.html quando acessa a raiz
+    
     return send_from_directory('.', 'index.html')
 
-# Serve outros arquivos HTML se necessário (ex: metricas.html)
+
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('.', path)
 
-# --- ROTAS DA API (BACKEND) ---
+
 @app.route('/api/produtos', methods=['GET'])
 def get_produtos():
     return jsonify(db.listar_produtos())
@@ -115,12 +113,11 @@ def deletar_produto_rota(prod_id):
     if db.excluir_produto(prod_id): return jsonify({"success": True})
     return jsonify({"success": False, "error": "Não encontrado"}), 404
 
-# --- INICIALIZAÇÃO ---
+
 if __name__ == '__main__':
-    # 1. Verifica se precisa criar dados
+    
     verificar_e_popular_banco()
 
-    # 2. Inicia o servidor
     print("\n" + "="*40)
     print(" 🚀 SISTEMA COMPLETO RODANDO")
     print(" ACESSE O SITE AQUI: http://127.0.0.1:8000")

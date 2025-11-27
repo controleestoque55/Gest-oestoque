@@ -1,36 +1,31 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. CONFIGURAÇÕES E UTILITÁRIOS GLOBAIS ---
-    // AJUSTE DE PORTA: MUDANÇA PARA 8000
     const API_URL = '/api'; 
-
-    
-    // Formatação de Dinheiro
     const formatCurrency = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     
-    // Meses
+
     const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
     
-    // Estado da Aplicação (Memória do Front-end)
+
     let appState = {
         produtos: [],
         transacoes: [],
-        mesSelecionado: -1 // -1 significa "Todos os meses"
+        mesSelecionado: -1 // -1 
     };
 
-    // Referências para destruir gráficos antigos antes de criar novos
+
     let chartFluxoRef = null;
     let chartCatRef = null;
     let chartQtdRef = null;
     let chartShareRef = null;
 
-    // --- 2. SISTEMA DE NOTIFICAÇÃO (TOAST) ---
+
     function showToast(title, message, type = 'info') {
         const container = document.getElementById('toast-container');
-        if (!container) return; // Se não houver container, não faz nada
+        if (!container) return; 
 
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`; // classes: success, error, warning
+        toast.className = `toast ${type}`; 
         
         let icon = '<i class="fa-solid fa-circle-info"></i>';
         if (type === 'success') icon = '<i class="fa-solid fa-circle-check"></i>';
@@ -46,25 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.appendChild(toast);
 
-        // Animação de entrada
+    
         setTimeout(() => toast.classList.add('show'), 100); 
 
-        // Auto-remoção após 5 segundos
+    
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 500);
         }, 5000);
     }
-    // Torna global para usar no HTML se precisar
+
     window.showToast = showToast;
 
-    // --- 3. FETCH DE DADOS (O CORAÇÃO DO SISTEMA) ---
+
     async function fetchData() {
         const loaderScreen = document.getElementById('loader-screen');
         const loaderText = document.getElementById('loader-text');
 
         try {
-            // Tenta buscar Produtos e Transações ao mesmo tempo
+          
             const [resProd, resTrans] = await Promise.all([
                 fetch(`${API_URL}/produtos`),
                 fetch(`${API_URL}/transacoes`)
@@ -75,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appState.produtos = await resProd.json();
             appState.transacoes = await resTrans.json();
             
-            // SUCESSO: Remove o loader suavemente
+
             if (loaderScreen) {
                 if(loaderText) loaderText.textContent = "Carregamento Concluído!";
                 setTimeout(() => {
@@ -84,28 +79,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 500);
             }
 
-            // Decide qual lógica rodar dependendo da página
+
             routePageLogic();
 
         } catch (error) {
             console.error("ERRO GRAVE:", error);
             
-            // ERRO: Avisa o usuário na tela de load e via Toast
+
             if(loaderText) {
                 loaderText.textContent = "ERRO: Servidor Offline ou Inacessível.";
                 loaderText.style.color = "red";
             }
             showToast("Erro de Conexão", "Não foi possível conectar ao Python/Flask. Verifique o terminal.", "error");
 
-            // Força a remoção do loader após 2 segundos para o usuário ver a interface (mesmo vazia)
+
             setTimeout(() => {
                 if(loaderScreen) loaderScreen.style.display = 'none';
             }, 2000);
         }
     }
 
-    // --- 4. ROTEADOR DE PÁGINAS ---
-    // Verifica em qual arquivo HTML estamos e roda o código certo
+
     function routePageLogic() {
         const path = window.location.pathname;
 
@@ -118,19 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (path.includes('relatorios.html')) {
             renderRelatoriosPage();
         } else {
-            // Index.html (Padrão)
+
             renderIndexPage();
         }
     }
 
-    // --- 5. LÓGICA: PÁGINA INICIAL (INDEX) ---
+
     function renderIndexPage() {
-        renderCalendar(); // Barra de meses
-        renderTableMain(); // Tabela principal de estoque
-        renderKPIsGerais(); // Cards do topo
-        renderChartsGerais(); // Gráficos da home
+        renderCalendar(); 
+        renderTableMain(); 
+        renderKPIsGerais(); 
+        renderChartsGerais();
         
-        // Verifica se veio com comando de "Nova Entrada" (da pag compras)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('action') === 'nova_entrada') {
             openNewProductModal();
@@ -144,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '';
         const termoBusca = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : "";
 
-        // Filtra e calcula estoque retroativo (baseado no mês selecionado)
         const listaProcessada = appState.produtos.map(p => getSnapshotProduto(p, appState.mesSelecionado));
         
         const listaFiltrada = listaProcessada.filter(p => p.nome.toLowerCase().includes(termoBusca) || p.categoria.toLowerCase().includes(termoBusca));
@@ -156,9 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         listaFiltrada.forEach(p => {
             const totalValor = p.estoque_calculado * p.custo;
-            const status = p.status_calculado; // {label, class, critico}
-
-            // Se for crítico, destaca a linha levemente
+            const status = p.status_calculado;
+            
             const styleRow = status.critico ? 'background-color: #fef2f2;' : '';
 
             tbody.innerHTML += `
@@ -186,12 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const ctxCat = document.getElementById('chartCategoria');
         if (!ctxFluxo || !ctxCat) return;
 
-        // Filtra transações do mês selecionado
+        
         const dadosMes = appState.transacoes.filter(t => 
             appState.mesSelecionado === -1 || t.mes_index === appState.mesSelecionado
         );
 
-        // 1. Fluxo Financeiro
+        
         const entradas = dadosMes.filter(t => t.tipo === 'entrada').reduce((acc, t) => acc + t.valor_total, 0);
         const saidas = dadosMes.filter(t => t.tipo === 'saida').reduce((acc, t) => acc + t.valor_total, 0);
 
@@ -211,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display:false} } }
         });
 
-        // 2. Categorias (Interativo)
+        
         const cats = {};
         dadosMes.filter(t => t.tipo === 'saida').forEach(t => {
             cats[t.categoria] = (cats[t.categoria] || 0) + t.valor_total;
@@ -234,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (el.length > 0) {
                         const index = el[0].index;
                         const catNome = Object.keys(cats)[index];
-                        // Redireciona para página de detalhes
+                        
                         window.location.href = `detalhe_categoria.html?categoria=${encodeURIComponent(catNome)}`;
                     }
                 }
@@ -242,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 6. LÓGICA: PÁGINA DETALHE CATEGORIA ---
     function initDetalheCategoria() {
         const urlParams = new URLSearchParams(window.location.search);
         const categoria = urlParams.get('categoria');
@@ -253,10 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.getElementById('categoria-titulo').textContent = categoria;
 
-        // Filtra só vendas dessa categoria
+        
         const transacoesCat = appState.transacoes.filter(t => t.categoria === categoria && t.tipo === 'saida');
 
-        // Agrupa por produto
+        
         const stats = {};
         transacoesCat.forEach(t => {
             if(!stats[t.produto_id]) stats[t.produto_id] = { nome: t.produto_nome, qtd: 0, receita: 0 };
@@ -265,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const lista = Object.values(stats);
 
-        // KPIs
+        
         const totalQtd = lista.reduce((a, b) => a + b.qtd, 0);
         const totalRev = lista.reduce((a, b) => a + b.receita, 0);
         const topProd = lista.sort((a,b) => b.receita - a.receita)[0];
@@ -274,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('kpi-valor').textContent = formatCurrency(totalRev);
         document.getElementById('kpi-top').textContent = topProd ? topProd.nome : "-";
 
-        // Listas Detalhadas
+        
         const ulQtd = document.getElementById('lista-qtd-vendida');
         const ulRec = document.getElementById('lista-receita-total');
         if(ulQtd) {
@@ -290,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Gráficos Detalhados
+        
         if(document.getElementById('chartQtd')) {
             if(chartQtdRef) chartQtdRef.destroy();
             chartQtdRef = new Chart(document.getElementById('chartQtd'), {
@@ -314,14 +304,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Interação dos Cards
+        
         const kpiCards = document.querySelectorAll('.kpi-card');
         kpiCards.forEach(card => {
             card.onclick = () => {
-                // Remove active de todos
+
                 document.querySelectorAll('.kpi-info-box-detalhe').forEach(b => b.classList.remove('active'));
                 
-                // Mapeia qual abrir
+                
                 let targetId = '';
                 if(card.id === 'card-kpi-qtd') targetId = 'info-produtos';
                 if(card.id === 'card-kpi-receita') targetId = 'info-receita';
@@ -333,17 +323,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 7. LÓGICA: OUTRAS PÁGINAS ---
     function renderComprasPage() {
         const tbody = document.getElementById('tbody-compras');
         if(!tbody) return;
         tbody.innerHTML = '';
         
-        // Filtra apenas entradas (compras)
+        
         const compras = appState.transacoes.filter(t => t.tipo === 'entrada');
         
         compras.forEach(t => {
-            // Lógica simples de status baseado na data
+          
             const hoje = new Date();
             const partesData = t.data_movimento.split('/');
             const dataTransacao = new Date(partesData[2], partesData[1]-1, partesData[0]);
@@ -371,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!tbody) return;
         tbody.innerHTML = '';
 
-        // Filtra transações pelo mês selecionado na sidebar (mesSelecionado é global)
+        
         const dados = appState.transacoes.filter(t => 
             (appState.mesSelecionado === -1 || t.mes_index === appState.mesSelecionado) && t.tipo === 'saida'
         );
@@ -388,22 +377,19 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
         
-        // Atualiza texto do período
+        
         const label = appState.mesSelecionado === -1 ? "(Ano Todo)" : `(${nomesMeses[appState.mesSelecionado]})`;
         document.querySelectorAll('.periodo-texto').forEach(el => el.textContent = label);
     }
 
     function renderMetricasPage() {
-        renderCalendar(); // Permite filtrar métricas
-        renderChartsGerais(); // Reusa os gráficos da home, pois são os mesmos KPIs
+        renderCalendar(); 
+        renderChartsGerais(); 
     }
 
-    // --- 8. FUNÇÕES AUXILIARES DE CÁLCULO E RENDERIZAÇÃO ---
-    
-    // Calcula estoque "no passado" se um mês estiver selecionado
     function getSnapshotProduto(produto, mesLimite) {
         if (mesLimite === -1) {
-            // Ano todo: usa o estoque atual real do banco
+            
             return {
                 ...produto,
                 estoque_calculado: produto.estoque_atual,
@@ -411,18 +397,17 @@ document.addEventListener('DOMContentLoaded', () => {
             };
         }
 
-        // Cálculo retroativo
+        
         let estoqueReverso = produto.estoque_atual;
         const transacoesFuturas = appState.transacoes.filter(t => 
             t.produto_id === produto.id && t.mes_index > mesLimite
         );
 
         transacoesFuturas.forEach(t => {
-            if (t.tipo === 'entrada') estoqueReverso -= t.quantidade; // Desfaz entrada
-            else estoqueReverso += t.quantidade; // Desfaz saída
+            if (t.tipo === 'entrada') estoqueReverso -= t.quantidade; 
+            else estoqueReverso += t.quantidade; 
         });
         
-        // Proteção visual para não mostrar negativo em simulação
         estoqueReverso = Math.max(0, estoqueReverso);
 
         return {
@@ -439,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return { label: "Normal", class: "bg-success", critico: false };
     }
 
-    // Renderiza a barra de meses
+    
     function renderCalendar() {
         const grid = document.getElementById('calendar-grid');
         if (!grid) return;
@@ -460,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-       // KPIs do Topo (Home)
     function renderKPIsGerais() {
         const kpiTotal = document.getElementById('kpi-total');
         if(!kpiTotal) return;
@@ -476,25 +460,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('kpi-critico').textContent = criticos;
     }
 
-    // Atualiza a tela sem fazer novo fetch
+    
     function refreshInterface() {
         const path = window.location.pathname;
         if (path.includes('metricas.html')) renderMetricasPage();
         else if (path.includes('relatorios.html')) renderRelatoriosPage();
         else renderIndexPage();
         
-        // Atualiza textos de período
         const label = appState.mesSelecionado === -1 ? "(Ano Todo)" : `(${nomesMeses[appState.mesSelecionado]})`;
         document.querySelectorAll('.periodo-texto').forEach(el => el.textContent = label);
     }
 
-    // Busca Input de pesquisa
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('input', renderTableMain);
     }
 
-    // --- 9. MODAIS E AÇÕES (DISPONÍVEIS NO HTML) ---
     
     window.openNewProductModal = () => {
         const modal = document.getElementById('modal-novo-produto');
@@ -530,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(json.success) {
                 showToast("Sucesso", "Produto cadastrado!", "success");
                 closeNewProductModal();
-                fetchData(); // Recarrega tudo
+                fetchData(); 
             } else {
                 showToast("Erro", json.error, "error");
             }
@@ -552,9 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const modal = document.getElementById('modal-transacao');
         modal.classList.add('open');
 
-        // Configura o botão de confirmar
         const btn = document.getElementById('btn-confirm-transacao');
-        // Clona para remover listeners antigos
+        
         const novoBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(novoBtn, btn);
 
@@ -605,7 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Funções de Menu Mobile
     window.openMenu = () => {
         document.querySelector('.sidebar').classList.add('active');
         const overlay = document.getElementById('overlay');
@@ -617,6 +596,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if(overlay) overlay.classList.remove('visible');
     };
 
-    // --- INICIALIZAÇÃO ---
-    fetchData(); // Chama a função principal ao carregar a página
+    fetchData(); 
 });
